@@ -1,0 +1,143 @@
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+public class GameState {
+
+    private List<Card> deck;
+    private List<Card> discard;
+
+    public GameState(String csvPath) throws Exception {
+        deck = loadCsv(csvPath);
+        discard = new ArrayList<Card>();
+        Collections.shuffle(deck);
+    }
+
+
+    private List<Card> loadCsv(String path) throws Exception {
+        List<Card> list = new ArrayList<Card>();
+        BufferedReader br = new BufferedReader(new FileReader(path));
+        String line;
+        while ((line = br.readLine()) != null) {
+            if (line.trim().isEmpty()) {
+                continue;
+            }
+
+            String[] p = line.split(";");
+            if (p[0].equalsIgnoreCase("NUMBER")) {
+                int id = Integer.parseInt(p[1]);
+                int number = Integer.parseInt(p[2]);
+                list.add(); // falta objeto de carta q o andrey fvai fazer
+            } else if (p[0].equalsIgnoreCase("ACTION")) {
+                int id = Integer.parseInt(p[1]);
+                String type = p[2];
+                int value = Integer.parseInt(p[3]);
+                list.add(); // falta objeto de carta q o andrey fvai fazer
+            }
+        }
+        br.close();
+        return list;
+    }
+
+    public void saveScore(Player p) throws Exception {
+        FileWriter fw = new FileWriter("save.txt");
+        fw.write(p.getName() + ";" + p.getTotalScore());
+        fw.close();
+    }
+
+    public int loadScore() throws Exception {
+        File f = new File("save.txt");
+        if (!f.exists()) {
+            return 0;
+        }
+        BufferedReader br = new BufferedReader(new FileReader(f));
+        String line = br.readLine();
+        br.close();
+        if (line == null || line.trim().isEmpty()) {
+            return 0;
+        }
+        String[] parts = line.split(";");
+        return Integer.parseInt(parts[1]);
+    }
+
+    public Card draw() throws InvalidMoveException {
+        if (deck.isEmpty()) {
+            throw new InvalidMoveException("Baralho acabou!");
+        }
+        return deck.remove(0);
+    }
+
+    public void playNumberCard(Player p, !!! c) { // falta objeto de carta q o andrey vai fazer
+        p.addCard(c);
+        discard.add(c);
+
+        int sameNumberCount = 0;
+        for (Card card : p.getRoundCards()) {
+            if (card instanceof NumberCard) {
+                NumberCard nc = (NumberCard) card;
+                if (nc.getNumber() == c.getNumber()) {
+                    sameNumberCount++;
+                }
+            }
+        }
+
+        if (sameNumberCount >= 2 && c.getNumber() != 0) {
+            if (p.hasSecondChance()) {
+                p.setBusted(false);
+            } else {
+                p.setBusted(true);
+            }
+        }
+    }
+
+    public void playActionCard(Player p, !!! c) throws InvalidMoveException { // falta objeto de carta q o andrey vai fazer
+        p.addCard(c);
+        discard.add(c);
+
+        String type = c.getType();
+        // terminar essa bomba
+    }
+
+    public int calculate(Player p) {
+        int sum = 0;
+        int bonus = 0;
+        int mult = 1;
+        Set<Integer> uniq = new HashSet<Integer>();
+
+        for (Card c : p.getRoundCards()) {
+            if (c instanceof /* objeto carta númerfo andrey */) {
+                int n = ((/* objeto carta numero andrey */) c).getNumber();
+                if (n != 0) {
+                    sum += n;
+                }
+                uniq.add(n);
+            } else if (c instanceof /* objeto carta acao andrey */) {
+                /* objeto carta acao andrey */ ac = (/* objeto carta acao andrey */) c;
+                String type = ac.getType();
+                if (type.equalsIgnoreCase("BONUS")) {
+                    bonus += ac.getValue();
+                } else if (type.equalsIgnoreCase("MULTIPLIER")) {
+                    mult *= ac.getValue();
+                }
+            }
+        }
+
+        int score = sum * mult + bonus;
+
+        if (uniq.size() >= 7) {
+            score += 15;
+        }
+
+        if (p.isBusted()) {
+            return 0;
+        }
+
+        return score;
+    }
+}
