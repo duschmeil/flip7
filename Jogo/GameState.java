@@ -18,7 +18,7 @@ public class GameState {
         discard = new ArrayList<Card>();
         Collections.shuffle(deck);
     }
-    
+
     private List<Card> loadCsv(String path) throws Exception {
         List<Card> list = new ArrayList<Card>();
         BufferedReader br = new BufferedReader(new FileReader(path));
@@ -65,7 +65,6 @@ public class GameState {
         return Integer.parseInt(parts[1]);
     }
 
-    // ------ Lógica do jogo ------
     public Card draw() throws InvalidMoveException {
         if (deck.isEmpty()) {
             throw new InvalidMoveException("Baralho acabou!");

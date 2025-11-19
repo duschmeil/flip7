@@ -14,12 +14,13 @@ public class GameUI extends JFrame {
     private JLabel lblTotal;
     private JLabel lblRound;
     private JLabel lblLast;
+    private JLabel lblRoundCards;
 
     public GameUI() {
         super("Flip7");
 
         try {
-            gs = new GameState("cartas.csv");
+            gs = new GameState("Jogo/cartas.csv");
         } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this, "Erro ao carregar cartas: " + e.getMessage());
@@ -36,10 +37,17 @@ public class GameUI extends JFrame {
             int previousScore = gs.loadScore();
             player.addScore(previousScore);
         } catch (Exception e) {
-            // se der erro, começa do zero
         }
 
         initUI();
+    }
+
+    private void updateRoundCardsLabel() {
+        StringBuilder sb = new StringBuilder("Cartas da rodada: ");
+        for (Card c : player.getRoundCards()) {
+            sb.append(c.toString()).append("  ");
+        }
+        lblRoundCards.setText(sb.toString());
     }
 
     private void initUI() {
@@ -49,11 +57,13 @@ public class GameUI extends JFrame {
         lblTotal = new JLabel();
         lblRound = new JLabel();
         lblLast = new JLabel("Última carta: -");
+        lblRoundCards = new JLabel("Cartas da rodada: -");
 
-        JPanel north = new JPanel(new GridLayout(3, 1));
+        JPanel north = new JPanel(new GridLayout(4, 1));
         north.add(lblTotal);
         north.add(lblRound);
         north.add(lblLast);
+        north.add(lblRoundCards);
 
         JButton flip = new JButton("Virar");
         JButton stop = new JButton("Parar");
@@ -69,6 +79,7 @@ public class GameUI extends JFrame {
                 c.play(player, gs);
                 lblLast.setText("Última carta: " + c.toString());
                 lblRound.setText("Rodada: " + gs.calculate(player));
+                updateRoundCardsLabel();
             } catch (InvalidMoveException ex) {
                 JOptionPane.showMessageDialog(this, ex.getMessage());
             } catch (Exception ex) {
@@ -80,20 +91,22 @@ public class GameUI extends JFrame {
             int pts = gs.calculate(player);
             player.addScore(pts);
 
+            if (player.getTotalScore() >= 200) {
+                JOptionPane.showMessageDialog(this,
+                        "Parabéns, " + player.getName() + "! Você atingiu 200 pontos! O total será zerado.");
+                player.addScore(-player.getTotalScore()); // zera o total
+            }
+
             try {
                 gs.saveScore(player);
             } catch (Exception ex) {
-                // falha ao salvar não impede o jogo
             }
 
             player.resetRound();
             lblRound.setText("Rodada: 0");
             lblTotal.setText("Total: " + player.getTotalScore());
             lblLast.setText("Última carta: -");
-
-            if (player.getTotalScore() >= 200) {
-                JOptionPane.showMessageDialog(this, "Parabéns, " + player.getName() + "! Você atingiu 200 pontos!");
-            }
+            lblRoundCards.setText("Cartas da rodada: -");
         });
 
         JPanel south = new JPanel();
