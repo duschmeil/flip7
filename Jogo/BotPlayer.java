@@ -1,19 +1,32 @@
-import javax.swing.JOptionPane;
+import java.util.List;
 
-public class HumanPlayer extends Player {
+public class BotPlayer extends Player {
 
-    public HumanPlayer(String name) {
+    public BotPlayer(String name) {
         super(name);
     }
 
     @Override
     public boolean chooseFlip() {
-        int r = JOptionPane.showConfirmDialog(
-                null,
-                "Virar carta?",
-                "Jogada",
-                JOptionPane.YES_NO_OPTION
-        );
-        return r == JOptionPane.YES_OPTION;
-    }
+        List<Card> hand = getRoundCards();
+        
+        int currentSum = 0;
+        int cardsCount = hand.size();
+
+        for (Card c : hand) {
+            if (c instanceof NumberCard) {
+                currentSum += ((NumberCard) c).getNumber();
+            }
+        }
+
+        System.out.println("Bot " + getName() + " pensando... (Soma atual: " + currentSum + ")");
+
+        if (currentSum >= 25 || cardsCount >= 6) {
+            System.out.println("Bot " + getName() + " decidiu PARAR.");
+            return false; 
+        }
+
+        System.out.println("Bot " + getName() + " decidiu VIRAR mais uma.");
+        return true;
+    }
 }
