@@ -16,14 +16,9 @@ public class GameUI extends JFrame {
     private JLabel lblScore;
     private JLabel lblStatus;
 
-    // --- Objetos do Jogo ---
     private GameState game;
     private Player player;
-    // Bot removido
 
-    /**
-     * Launch the application.
-     */
     public static void main(String[] args) {
         EventQueue.invokeLater(new Runnable() {
             public void run() {
@@ -37,9 +32,6 @@ public class GameUI extends JFrame {
         });
     }
 
-    /**
-     * Create the frame.
-     */
     public GameUI() {
         setTitle("Flip 7 Simplificado - Single Player");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -73,30 +65,25 @@ public class GameUI extends JFrame {
         btnFlip.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try {
-                    // 1. Compra carta
                     Card c = game.draw();
                     updateLastCardLabel(c);
 
-                    // 2. Aplica regra
                     if (c instanceof NumberCard) {
                         game.playNumberCard(player, (NumberCard) c);
                     } else if (c instanceof ActionCard) {
                         game.playActionCard(player, (ActionCard) c);
                     }
 
-                    // 3. Verifica se estourou
                     if (player.isBusted()) {
                         JOptionPane.showMessageDialog(null, "Você ESTOUROU! Perdeu os pontos desta rodada.");
-                        endRound(0); // Encerra rodada com 0 pontos
+                        endRound(0);
                     } else {
-                        // Atualiza status parcial
                         int currentRoundPoints = game.calculate(player);
                         lblStatus.setText("Status: Jogando... (Pontos na mesa: " + currentRoundPoints + ")");
                     }
 
                 } catch (InvalidMoveException ex) {
                     JOptionPane.showMessageDialog(null, "O baralho acabou!");
-                    // Se acabar o baralho, salva o que tem
                     int points = game.calculate(player);
                     endRound(points);
                 } catch (Exception ex) {
@@ -111,7 +98,6 @@ public class GameUI extends JFrame {
         JButton btnStop = new JButton("Parar");
         btnStop.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                // Jogador decidiu parar, calcula pontos e salva
                 int points = game.calculate(player);
                 JOptionPane.showMessageDialog(null, "Você parou e garantiu " + points + " pontos!");
                 endRound(points);
@@ -128,7 +114,6 @@ public class GameUI extends JFrame {
         try {
             game = new GameState("cartas.csv");
             player = new HumanPlayer("Jogador 1");
-            // Bot removido
             updateLabels();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Erro ao carregar cards.csv: " + e.getMessage());
@@ -144,19 +129,15 @@ public class GameUI extends JFrame {
         }
     }
 
-    // Finaliza a rodada atual e prepara a próxima
     private void endRound(int roundPoints) {
-        // 1. Adiciona pontuação ao total
         player.addScore(roundPoints);
         
-        // 2. Verifica vitória (Objetivo: 200 pontos)
         if (player.getTotalScore() >= 200) {
             JOptionPane.showMessageDialog(this, "PARABÉNS! Você atingiu " + player.getTotalScore() + " pontos e VENCEU o jogo!");
             resetGameTotal();
             return;
         }
 
-        // 3. Reseta a mão para a próxima rodada
         player.resetRound();
         
         lblLastCard.setText("[ Nova Rodada ]");
@@ -164,11 +145,8 @@ public class GameUI extends JFrame {
         updateLabels();
     }
     
-    // Zera o jogo completo (Vitória)
     private void resetGameTotal() {
-        player = new HumanPlayer("Jogador 1"); // Recria jogador zerado
-        
-        // Tenta recarregar o baralho
+        player = new HumanPlayer("Jogador 1");
         try {
             game = new GameState("cards.csv");
         } catch (Exception e) {
