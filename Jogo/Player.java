@@ -57,5 +57,9 @@ public abstract class Player {
         return totalScore;
     }
 
+    public void resetTotalScore() {
+        this.totalScore = 0;
+    }
+
     public abstract boolean chooseFlip();
 }
