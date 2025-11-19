@@ -18,8 +18,7 @@ public class GameState {
         discard = new ArrayList<Card>();
         Collections.shuffle(deck);
     }
-
-
+    
     private List<Card> loadCsv(String path) throws Exception {
         List<Card> list = new ArrayList<Card>();
         BufferedReader br = new BufferedReader(new FileReader(path));
@@ -33,12 +32,12 @@ public class GameState {
             if (p[0].equalsIgnoreCase("NUMBER")) {
                 int id = Integer.parseInt(p[1]);
                 int number = Integer.parseInt(p[2]);
-                list.add(); // falta objeto de carta q o andrey fvai fazer
+                list.add(new NumberCard(id, number));
             } else if (p[0].equalsIgnoreCase("ACTION")) {
                 int id = Integer.parseInt(p[1]);
                 String type = p[2];
                 int value = Integer.parseInt(p[3]);
-                list.add(); // falta objeto de carta q o andrey fvai fazer
+                list.add(new ActionCard(id, type, value));
             }
         }
         br.close();
@@ -66,6 +65,7 @@ public class GameState {
         return Integer.parseInt(parts[1]);
     }
 
+    // ------ Lógica do jogo ------
     public Card draw() throws InvalidMoveException {
         if (deck.isEmpty()) {
             throw new InvalidMoveException("Baralho acabou!");
@@ -73,7 +73,7 @@ public class GameState {
         return deck.remove(0);
     }
 
-    public void playNumberCard(Player p, !!! c) { // falta objeto de carta q o andrey vai fazer
+    public void playNumberCard(Player p, NumberCard c) {
         p.addCard(c);
         discard.add(c);
 
@@ -96,12 +96,17 @@ public class GameState {
         }
     }
 
-    public void playActionCard(Player p, !!! c) throws InvalidMoveException { // falta objeto de carta q o andrey vai fazer
+    public void playActionCard(Player p, ActionCard c) throws InvalidMoveException {
         p.addCard(c);
         discard.add(c);
 
         String type = c.getType();
-        // terminar essa bomba
+        if (type.equalsIgnoreCase("SECOND")) {
+            p.giveSecondChance();
+        } else if (type.equalsIgnoreCase("ZERO")) {
+            NumberCard zero = new NumberCard(c.getId(), 0);
+            playNumberCard(p, zero);
+        }
     }
 
     public int calculate(Player p) {
@@ -111,14 +116,14 @@ public class GameState {
         Set<Integer> uniq = new HashSet<Integer>();
 
         for (Card c : p.getRoundCards()) {
-            if (c instanceof /* objeto carta númerfo andrey */) {
-                int n = ((/* objeto carta numero andrey */) c).getNumber();
+            if (c instanceof NumberCard) {
+                int n = ((NumberCard) c).getNumber();
                 if (n != 0) {
                     sum += n;
                 }
                 uniq.add(n);
-            } else if (c instanceof /* objeto carta acao andrey */) {
-                /* objeto carta acao andrey */ ac = (/* objeto carta acao andrey */) c;
+            } else if (c instanceof ActionCard) {
+                ActionCard ac = (ActionCard) c;
                 String type = ac.getType();
                 if (type.equalsIgnoreCase("BONUS")) {
                     bonus += ac.getValue();
